@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+	http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-4.3.xsd
+	http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.6.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:jmsconfig.properties</value>
+		</property>
+		<property name="fileEncoding" value="utf-8" />
+	</bean>
+
+	<!-- activeMQ -->
+	<!-- <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory"> 
+		<property name="brokerURL" value="tcp://localhost:61616" /> </bean> <bean 
+		id="activeMQTestQueue" class="org.apache.activemq.command.ActiveMQQueue"> 
+		<constructor-arg> <value>testQueue</value> </constructor-arg> </bean> <bean 
+		id="activeMQResponseQueue" class="org.apache.activemq.command.ActiveMQQueue"> 
+		<constructor-arg> <value>responseQueue</value> </constructor-arg> </bean> -->
+
+	<!-- weblogic config -->
+	<bean id="weblogicJms" class="org.springframework.jndi.JndiTemplate">
+		<property name="environment">
+			<props>
+				<prop key="java.naming.factory.initial"> weblogic.jndi.WLInitialContextFactory </prop>
+				<prop key="java.naming.provider.url"> t3://172.27.128.74:7001 </prop>
+				<prop key="java.naming.factory.url.pkgs"> weblogic.jndi.factories </prop>
+				<prop key="java.naming.security.principal"> weblogic </prop>
+				<prop key="java.naming.security.credentials"> xdrcft56 </prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="weblogicConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="weblogic.jms.ConnectionFactory0" />
+		<property name="jndiTemplate" ref="weblogicJms" />
+	</bean>
+	<bean id="weblogicTestQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="weblogic.jms.testQueue" />
+		<property name="jndiTemplate" ref="weblogicJms" />
+	</bean>
+	<bean id="weblogicResponseQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="weblogic.jms.responseQueue" />
+		<property name="jndiTemplate" ref="weblogicJms" />
+	</bean>
+
+
+	<bean id="connectionFactory"
+		class="org.springframework.jms.connection.SingleConnectionFactory">
+		<property name="targetConnectionFactory" ref="${connectionFactory}" />
+	</bean>
+
+	<!-- Spring提供的JMS工具类，它可以进行消息发送、接收等 -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="connectionFactory" />
+	</bean>
+
+	<!-- for test -->
+	<bean id="simpleMessageProducer" class="com.lmstudio.esframe.jms.SimpleMessageProducer">
+		<property name="jmsTemplate" ref="jmsTemplate"></property>
+		<property name="responseQueue" ref="${responseQueue}"></property>
+	</bean>
+
+
+	<!-- <bean id="simpleMessageListener" class="com.wondersgroup.esf.jms.SimpleMessageListener" 
+		/> -->
+	<!-- 消息监听适配器 -->
+	<bean id="messageListenerAdapter"
+		class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+		<property name="delegate">
+			<bean class="com.lmstudio.esframe.jms.SimpleConsumerListener" />
+		</property>
+		<property name="defaultListenerMethod" value="receiveMessage" />
+	</bean>
+	<bean id="jmsContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="${sendQueue}" />
+		<!-- <property name="messageListener" ref="simpleMessageListener" /> -->
+		<property name="messageListener" ref="messageListenerAdapter" />
+		<property name="concurrentConsumers" value="3" />
+		<property name="maxConcurrentConsumers" value="10" />
+		<property name="acceptMessagesWhileStopping" value="true"/>
+	</bean>
+
+
+
+	<bean id="responseQueueListener" class="com.lmstudio.esframe.jms.ResponseQueueListener" />
+	<bean id="responseQueueMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="${responseQueue}" />
+		<property name="messageListener" ref="responseQueueListener" />
+		<property name="concurrentConsumers" value="3" />
+		<property name="maxConcurrentConsumers" value="10" />
+		<property name="acceptMessagesWhileStopping" value="true"/>
+	</bean>
+
+
+
+</beans>
