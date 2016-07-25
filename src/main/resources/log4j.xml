@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration>
+
+    <appender name="F" class="org.apache.log4j.RollingFileAppender">
+<!--         <param name="File" value="${fjgs.root}/logs/hebgs.log" /> -->
+		<param name="File" value="C:\Users\37962\esframe.log" />
+        <param name="MaxFileSize" value="10MB" />
+        <param name="MaxBackupIndex" value="3" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %p %l -- %m%n" />
+        </layout>
+        <filter class="org.apache.log4j.varia.StringMatchFilter">
+        	<param name="StringToMatch" value="returning " />
+      		<param name="AcceptOnMatch" value="false" />
+        </filter>
+    </appender>
+    
+    <appender name="C" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%p %d{HH:mm:ss} %C{1}.%M(%L)-->%m%n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.StringMatchFilter">
+        	<param name="StringToMatch" value="returning " />
+      		<param name="AcceptOnMatch" value="false" />
+        </filter>
+    </appender>
+
+	<logger name="org.hibernate.SQL">
+        <level value="debug"/>
+    </logger>
+    <logger name="org.hibernate.type">
+        <level value="trace"/>
+    </logger>
+    <logger name="com.lmstudio.esframe" additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="F" />
+        <appender-ref ref="C" />
+    </logger>
+    
+    <root>
+        <level value="info" />
+        <appender-ref ref="F" />
+        <appender-ref ref="C" />
+    </root>
+
+</log4j:configuration>

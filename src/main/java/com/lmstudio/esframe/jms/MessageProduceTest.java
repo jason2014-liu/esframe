@@ -24,7 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 * @author jason.liu
 */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations="classpath:config/ext/applicationContext-jms.xml")   
+@ContextConfiguration(locations="classpath:applicationContext-jms.xml")   
 public class MessageProduceTest {
 
 	@Autowired
