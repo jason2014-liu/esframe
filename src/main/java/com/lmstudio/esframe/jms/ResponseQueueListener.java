@@ -1,6 +1,6 @@
 /**
 * TODO
-* @Project: gsyth
+* @Project: esframe
 * @Title: ResponseQueueListener.java
 * @Package com.wondersgroup.esf.jms
 * @author jason.liu
