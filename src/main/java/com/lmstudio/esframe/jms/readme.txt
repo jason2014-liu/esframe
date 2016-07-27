@@ -10,3 +10,13 @@ jar包：新增 wlthint3client.jar  （from:/home/weblogic/Oracle/Middleware/wls
 3、testQueue为发送队列，responseQueue为回复队列，需要在中间件上提前配置好，，中间件的配置比较简单，可查看对应产品文档
 
 3、MessageProduceTest.java为单元测试代码
+
+
+
+
+下载后解压 E:\activemq\apache-activemq-5.12.0
+
+进入目录doc \user-guide.html   
+可查看如何启动activemq  bin\activemq.bat start
+
+登陆管理台：http://127.0.0.1:8161/admin  可测试消息的发送
