@@ -80,6 +80,16 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>4.1.6.RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<!--产生的构件的文件名，默认值是${artifactId}-${version}。 -->
