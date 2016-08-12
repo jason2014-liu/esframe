@@ -12,9 +12,10 @@
 	<description></description>
 	<properties>
 		<org.springframework-version>4.3.1.RELEASE</org.springframework-version>
+		<lucene>6.1.0</lucene>
 	</properties>
 	<dependencies>
-		<!-- Servlet 容器-->
+		<!-- Servlet 容器 -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -70,9 +71,9 @@
 			<version>4.12</version>
 		</dependency>
 		<dependency>
-		  <groupId>org.activiti</groupId>
-		  <artifactId>activiti-engine</artifactId>
-		  <version>5.18.0</version>
+			<groupId>org.activiti</groupId>
+			<artifactId>activiti-engine</artifactId>
+			<version>5.18.0</version>
 		</dependency>
 
 		<dependency>
@@ -90,6 +91,39 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
+
+		<!-- lucene -->
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+			<version>${lucene}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-highlighter</artifactId>
+			<version>${lucene}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-memory</artifactId>
+			<version>${lucene}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-queries</artifactId>
+			<version>${lucene}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-queryparser</artifactId>
+			<version>${lucene}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers-common</artifactId>
+			<version>${lucene}</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<!--产生的构件的文件名，默认值是${artifactId}-${version}。 -->

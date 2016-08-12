@@ -11,13 +11,15 @@
 package com.lmstudio.esframe.lucene;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -62,7 +64,7 @@ public class LuceneIKUtil {
 	public LuceneIKUtil(String indexFilePath) {
 		try {
 			directory = FSDirectory.open(Paths.get(indexFilePath));
-			//analyzer = new IKAnalyzer();
+			// analyzer = new IKAnalyzer();
 			analyzer = new StandardAnalyzer();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -85,13 +87,13 @@ public class LuceneIKUtil {
 		IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
 		indexWriterConfig.setOpenMode(OpenMode.CREATE);
 		IndexWriter indexWriter = new IndexWriter(directory, indexWriterConfig);
-		//indexWriter.deleteAll();
+		// indexWriter.deleteAll();
 		List<Medicine> list = DataFactory.getInstance().getData();
 		for (int i = 0; i < list.size(); i++) {
 			Medicine medicine = list.get(i);
 			Document document = newDocument(medicine.getId(), medicine.getName(), medicine.getFunction());
 			indexWriter.addDocument(document);
-			System.out.println("add data:"+medicine.toString());
+			System.out.println("add data:" + medicine.toString());
 		}
 
 		indexWriter.close();
@@ -102,7 +104,7 @@ public class LuceneIKUtil {
 		doc.add(new StringField("id", String.valueOf(id), Field.Store.YES));
 		doc.add(new StringField("name", name, Field.Store.YES));
 		doc.add(new StringField("function", function, Field.Store.YES));
-		
+
 		return doc;
 	}
 
@@ -177,7 +179,8 @@ public class LuceneIKUtil {
 			/*
 			 * 创建高亮器,使搜索的结果高亮显示 SimpleHTMLFormatter：用来控制你要加亮的关键字的高亮方式 此类有2个构造方法
 			 * 1：SimpleHTMLFormatter()默认的构造方法.加亮方式：<B>关键字</B>
-			 * 2：SimpleHTMLFormatter(String preTag, String postTag).加亮方式：preTag关键字postTag
+			 * 2：SimpleHTMLFormatter(String preTag, String
+			 * postTag).加亮方式：preTag关键字postTag
 			 */
 			Formatter formatter = new SimpleHTMLFormatter("<font color='red'>", "</font>");
 			/*
@@ -185,12 +188,13 @@ public class LuceneIKUtil {
 			 * 它会从原始输入的单词、词组和布尔查询中提取项，并且基于相应的加权因子（boost factor）给它们加权。
 			 * 为了便于QueryScoere使用，还必须对查询的原始形式进行重写。 比如，带通配符查询、模糊查询、前缀查询以及范围查询
 			 * 等，都被重写为BoolenaQuery中所使用的项。
-			 * 在将Query实例传递到QueryScorer之前，可以调用Query.rewrite(IndexReader)方法来重写Query对象
+			 * 在将Query实例传递到QueryScorer之前，可以调用Query.rewrite(IndexReader)
+			 * 方法来重写Query对象
 			 */
 			Scorer fragmentScorer = new QueryScorer(query);
 			Highlighter highlighter = new Highlighter(formatter, fragmentScorer);
 			Fragmenter fragmenter = new SimpleFragmenter(100);
-			
+
 			/*
 			 * Highlighter利用Fragmenter将原始文本分割成多个片段。
 			 * 内置的SimpleFragmenter将原始文本分割成相同大小的片段，片段默认的大小为100个字符。这个大小是可控制的。
@@ -226,34 +230,70 @@ public class LuceneIKUtil {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} 
+		}
 
 		return result;
 	}
-	
-	
-	public static void main(String[] args) {
-        LuceneIKUtil luceneProcess = new LuceneIKUtil();
-        try {
-            luceneProcess.createIndex();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //修改测试
-        //luceneProcess.update(2, "测试内容", "修改测试。。。");
-        
-        //查询测试
-        String [] fields = {"name","function"};
-        List<Medicine> list = luceneProcess.search(fields,"感冒");
-        for(int i=0; i<list.size(); i++){
-            Medicine medicine = list.get(i);
-            System.out.println("("+medicine.getId()+")"+medicine.getName() + "\t" + medicine.getFunction());
-        }
-        
-        //删除测试
-        //luenceProcess.delete(1);
-        
-    }
 
+	/**
+	 * 获取分词结果
+	 * 
+	 * @param 输入的字符串
+	 * @param 分词器
+	 * @return 分词结果
+	 */
+	public static List<String> getWords(String str, Analyzer analyzer) {
+		List<String> result = new ArrayList<String>();
+		TokenStream stream = null;
+		try {
+			stream = analyzer.tokenStream("content", new StringReader(str));
+			CharTermAttribute attr = stream.addAttribute(CharTermAttribute.class);
+			stream.reset();
+			while (stream.incrementToken()) {
+				result.add(attr.toString());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return result;
+	}
+
+	public static void main(String[] args) {
+		LuceneIKUtil luceneProcess = new LuceneIKUtil();
+		
+		String str = "欢迎光临xsi64的博客。";  
+		List<String> lists = luceneProcess.getWords(str, new IKAnalyzer());  
+		for (String s : lists) {  
+		    System.out.println(s);
+		}  
+
+		try {
+			luceneProcess.createIndex();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// 修改测试
+		// luceneProcess.update(2, "测试内容", "修改测试。。。");
+
+		// 查询测试
+		String[] fields = { "name", "function" };
+		List<Medicine> list = luceneProcess.search(fields, "冒");
+		for (int i = 0; i < list.size(); i++) {
+			Medicine medicine = list.get(i);
+			System.out.println("(" + medicine.getId() + ")" + medicine.getName() + "\t" + medicine.getFunction());
+		}
+
+		// 删除测试
+		// luenceProcess.delete(1);
+
+	}
 
 }

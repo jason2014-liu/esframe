@@ -15,9 +15,7 @@
 			expression="org.springframework.stereotype.Service" />
 	</context:component-scan>
 
-	<mvc:default-servlet-handler />
-	
-	<mvc:annotation-driven />
+
 
 
 	<bean
@@ -47,5 +45,8 @@
 	</bean>
 
 
+	<mvc:default-servlet-handler />
+	
+	<mvc:annotation-driven />
 
 </beans>
